@@ -17,7 +17,7 @@ Columns are
 
 
 def merge_NCSA_Data():
-    with open("ncsa_combined_data.csv", 'w', encoding = "UTF-8", newline = '') as wFile:
+    with open("./final_data_sets/ncsa_combined_data.csv", 'w', encoding = "UTF-8", newline = '') as wFile:
         writer = csv.writer(wFile)
 
         #read any csv files in this directory
@@ -37,7 +37,7 @@ def merge_NCSA_Data():
 '''
 Gathers front rush data and stores it in a dic. The key is the name of the recruit and the value 
 is the list that contains all of the information of the recruit.
-The key is stored in the format: firstname + lastname (ALL LOWERCASE)
+The key is stored in the format: firstname + lastname + state(ALL LOWERCASE)
 
 IMPORTANT:
 state needs to be in the third column, as first name needs to be in the first and last name in the second
@@ -52,14 +52,14 @@ def gather_front_rush_data():
             next(spamreader)
             for line in spamreader:
                 recruit_data[generate_name(line[0] + line[1])] = line
-                print(generate_name(line[0] + line[1] + line[2]))
+                #print(generate_name(line[0] + line[1] + line[2]))
     
     f.close()
     return recruit_data
 
 '''
 returns the general format of the name string that functions will use it as key to identify.
-lowercase first name + last name
+lowercase first name + last name + state
 '''
 def generate_name(name):
     name = name.lower()
