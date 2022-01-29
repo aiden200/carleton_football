@@ -48,7 +48,7 @@ def gather_front_rush_data():
             spamreader = csv.reader(rFile, delimiter=',')
             next(spamreader)
             for line in spamreader:
-                recruit_data[generate_name(line[0] + line[1])] = line
+                recruit_data[generate_name(line[0] + line[1] + line[2])] = line
                 #print(generate_name(line[0] + line[1] + line[2]))
     
     f.close()
@@ -76,8 +76,73 @@ def create_new_recruits(front_rush_data):
         writer.writerow(['Last Name', 'First', 'HS', 'Email', 'Twitter', 'Cell Phone', \
             'Address', 'City', 'State', 'Zip', 'Video Link', 'Send to Admissions', 'Source', \
                 'Recruiting Coach', 'Grad Year', 'Primary Position', 'Positions (All)', 'GPA', 'ACT', 'SAT'])
-                
+        f = open("./final_data_sets/ncsa_combined_data.csv", 'r', encoding = "UTF-8")
+        with f as rFile:
+            spamreader = csv.reader(rFile, delimiter=',')
+            next(spamreader)
+            for line in spamreader:
+                if generate_name(line[0] + line[1] + abriviate_states(line[13])) in front_rush_data:
+                    #TO DO ADD INTO THE WRITE FILE WITH CORRECT SOURCE COLUMN AND RECRUITING COACH     
 
+def abriviate_states(state):
+    states = {
+    'alaska': 'AK',
+    'alabama': 'AL',
+    'arkansas': 'AR',
+    'arizona': 'AZ',
+    'california': 'CA',
+    'colorado': 'CO',
+    'connecticut': 'CT',
+    'district of columbia': 'DC', #check
+    'delaware': 'DE',
+    'florida': 'FL',
+    'georgia': 'GA',
+    'hawaii': 'HI',
+    'iowa': 'IA',
+    'idaho': 'ID',
+    'illinois': 'IL',
+    'indiana': 'IN',
+    'kansas': 'KS',
+    'kentucky': 'KY',
+    'louisiana': 'LA',
+    'massachusetts': 'MA',
+    'maryland': 'MD',
+    'maine': 'ME',
+    'michigan': 'MI',
+    'minnesota': 'MN',
+    'missouri': 'MO',
+    'mississippi': 'MS',
+    'montana': 'MT',
+    'north carolina': 'NC',
+    'north dakota': 'ND',
+    'nebraska': 'NE',
+    'new Hampshire': 'NH',
+    'new Jersey': 'NJ',
+    'new Mexico': 'NM',
+    'nevada': 'NV',
+    'new york': 'NY',
+    'ohio': 'OH',
+    'oklahoma': 'OK',
+    'oregon': 'OR',
+    'pennsylvania': 'PA',
+    'rhode island': 'RI',
+    'south carolina': 'SC',
+    'south dakota': 'SD',
+    'tennessee': 'TN',
+    'texas': 'TX',
+    'utah': 'UT',
+    'virginia': 'VA',
+    'vermont': 'VT',
+    'washington': 'WA',
+    'wisconsin': 'WI',
+    'west virginia': 'WV',
+    'wyoming': 'WY'
+    }
+    state = state.lower()
+    if state not in states:
+        print("ERROR " + state + "not a valid state")
+        exit(0)
+    return states[state]
 
 def testFunction():
     path = "./formatting_examples/example_format.csv"
