@@ -1,6 +1,18 @@
 import sys
 import csv
 import glob
+import os
+'''
+Python script to create the files listed under the README.
+Please contact the author regarding questions or issues about the program.
+Wrote by Aiden Chang.
+Last Updated: 01/29/2022 by Aiden Chang
+
+TODOS:
+Ask Journell about the desired columns 
+Generate an export criteria
+Find the designated states per Coac
+'''
 
 DEBUG = False
 '''
@@ -14,6 +26,8 @@ Columns are
     'Rating', 'GPA', 'Class Rank'
 '''
 def merge_NCSA_Data():
+    if os.path.exists("./final_data_sets/ncsa_combined_data.csv"):
+        os.remove("./final_data_sets/ncsa_combined_data.csv")
     with open("./final_data_sets/ncsa_combined_data.csv", 'w', encoding = "UTF-8", newline = '') as wFile:
         writer = csv.writer(wFile)
 
@@ -27,8 +41,8 @@ def merge_NCSA_Data():
                 next(spamreader)
                 for line in spamreader:
                     writer.writerow(line)
-        f.close
-        wFile.close
+        f.close()
+        wFile.close()
 
 
 '''
@@ -71,6 +85,8 @@ Creates new recruits from NCSA data that are not in frontrush.
 Reads from "./final_data_sets/ncsa_combined_data.csv"
 '''
 def create_new_recruits(front_rush_data):
+    if os.path.exists("./final_data_sets/new_recruits.csv"):
+        os.remove("./final_data_sets/new_recruits.csv")
     with open("./final_data_sets/new_recruits.csv", 'w', encoding = "UTF-8", newline = '') as wFile:
         writer = csv.writer(wFile)
         writer.writerow(['Last Name', 'First', 'HS', 'Email', 'Twitter', 'Cell Phone', \
@@ -81,9 +97,83 @@ def create_new_recruits(front_rush_data):
             spamreader = csv.reader(rFile, delimiter=',')
             next(spamreader)
             for line in spamreader:
-                if generate_name(line[0] + line[1] + abriviate_states(line[13])) in front_rush_data:
-                    #TO DO ADD INTO THE WRITE FILE WITH CORRECT SOURCE COLUMN AND RECRUITING COACH     
+                if generate_name(line[0] + line[1] + abriviate_states(line[13])) not in front_rush_data:
+                    write_line = [line[1], line[0], line[7], line[10],"" ,line[9], line[11], line[12], \
+                        abriviate_states(line[13]), line[14], "", "", "NCSA", find_coach(abriviate_states(line[13])), \
+                            line[3], abriviate_position(line[4]), "", line[16], "", ""]
+                    writer.writerow(write_line)
+        f.close()
+        wFile.close()
+    
+'''
+Finds the coach with the corresponding states
+'''
+def find_coach(state):
+    #NEED TO UPDATE THIS
+    state_responsibility = [
+        ["Lee", "OH", 'MO', 'KS', 'IL', 'MI', 'KY', 'WV', 'SD', 'ND', 'NE', 'AB'],
+        ["Journell", "AK", 'CA', 'CO', 'HI', 'ID', 'MT', 'OK', 'OR', 'UT', 'WA', 'WI', 'WY'],
+        ["Kent", "AL", 'FL', 'GA', 'IN', 'LA', 'MS', 'SC', 'TN', 'TX'],
+        ["Davies", "PA", 'NC', 'MA', 'NJ', 'NY', 'DE', 'CT', 'NH', 'MD', 'ON', 'MI', 'DC', 'ME', 'RI', 'VT', 'VA'],
+        ['Van Epps', 'MN'],
+        ["Erickson", "AZ", 'NV', 'NM']
+    ]
+    for item in state_responsibility:
+        if state in item:
+            return item[0]
+    print("WARNING: Couldn't find coach assigned to state: " + state)
+    print("Assigning to Journell")
+    return "Jounell"
 
+'''
+Returns the abriviated string version of the position. Returns multiple positions as a string if there are multiple
+'''
+def abriviate_position(positions):
+    abriv_position = {
+        "runningback": "RB",
+        "cornerback" :"CB",
+        "widereceiver" : "WR",
+        "middlelinebacker" : "LB",
+        "outsidelinebacker" : "OLB",
+        "offensivetackle" : "OL",
+        "quarterback" : "QB",
+        "safety" : "S",
+        "center" : "OL",
+        "offensiveguard" : "OL",
+        "defensivetackle" : "DT",
+        "athlete" : "Athlete",
+        "punter" : "P",
+        "tightend" : "TE",
+        "defensiveend":"DE",
+        "fullback":"FB",
+        "kicker":"K",
+        "longsnapper":"LS"
+    }
+
+    if ',' in positions:
+        list_positions = positions.split(",")
+        return_string = ""
+        for single_position in list_positions:
+            shortened_position= single_position.lower()
+            shortened_position = shortened_position.replace(" ","")
+            if shortened_position not in abriv_position:
+                print("ERROR: " + positions + "position not recognized, check spelling or contact author")
+                return_string = return_string + ","
+            else:
+                return_string = return_string + abriv_position[shortened_position] + ","
+        return return_string[:len(return_string)-1]
+    else:
+        shortened_position = positions.lower()
+        shortened_position = shortened_position.replace(" ","")
+        if shortened_position not in abriv_position:
+            print("ERROR: " + positions + "position not recognized, check spelling or contact author")
+            return ""
+        return abriv_position[shortened_position]
+
+
+'''
+changes full name state to abriviation. Throws an error and exits if its not there.
+'''
 def abriviate_states(state):
     states = {
     'alaska': 'AK',
@@ -170,15 +260,14 @@ def main():
     if DEBUG:
         testFunction()
     else:
-        print("Starting Program...")
-        print('Merging NCSA datasheets...')
+        print("Starting Program...\n")
+        print('Merging NCSA datasheets...\n')
         merge_NCSA_Data()
-        print("Done\nCreated merge file in ncsa_combined_data.csv in directory final_data_sets\n\
-            Loading front rush recruit data...")
+        print("Done\n\nCreated merge file in ncsa_combined_data.csv in directory final_data_sets\n\nLoading front rush recruit data...\n")
         front_rush_data = gather_front_rush_data()
-        print("Done\n cross referencing... this might take some time")
+        print("Done\n\nCross referencing... this might take some time\n")
         create_new_recruits(front_rush_data)
-        print("Created new Recruit data in new_recruits.csv")
+        print("Created new Recruit data in new_recruits.csv\n")
         #create a dic that maps the columns from NCSA to front rush
         #create a function that cross references the combined_ncsa_data and front rush dic to either add or write new lines into it
             #We can seperate this into three fields, one for new recruits
