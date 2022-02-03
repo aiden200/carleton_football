@@ -12,6 +12,13 @@ TODOS:
 Ask Journell about the desired columns 
 Generate an export criteria
 Find the designated states per Coac
+
+states
+send to admissions yes, height weight
+
+fields not interested in 
+
+
 '''
 
 DEBUG = False
@@ -26,6 +33,7 @@ Columns are
     'Rating', 'GPA', 'Class Rank'
 '''
 def merge_NCSA_Data():
+    i = 0
     if os.path.exists("./final_data_sets/ncsa_combined_data.csv"):
         os.remove("./final_data_sets/ncsa_combined_data.csv")
     with open("./final_data_sets/ncsa_combined_data.csv", 'w', encoding = "UTF-8", newline = '') as wFile:
@@ -38,12 +46,108 @@ def merge_NCSA_Data():
             f = open(fileName, 'r', encoding = "UTF-8")
             with f as rFile:
                 spamreader = csv.reader(rFile, delimiter=',')
-                next(spamreader)
+                print("Reading file: " + fileName)
+                categories = next(spamreader)
+
                 for line in spamreader:
-                    writer.writerow(line)
+                    writer.writerow(create_line(categories, line))
+                    i+= 1
         f.close()
         wFile.close()
-
+    print("Generated %d recruits" % (i))
+'''
+create the line with the correct categories in the correct spot
+'''
+['First Name', 'Last Name', 'Recruiting Profile Link', 'Grad Year', 'Position(s)', 'Height', \
+    'Weight', 'High School', 'Club Team', 'Phone', 'Email', 'Address', 'City', 'State', 'Zip', \
+        'Rating', 'GPA', 'Class Rank']
+def create_line(categories, line):
+    returnList = []
+    if find_indicies(categories, "First Name") != -1:    
+        returnList.append(line[find_indicies(categories, "First Name")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "Last Name") != -1:    
+        returnList.append(line[find_indicies(categories, "Last Name")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "Recruiting Profile Link") != -1:    
+        returnList.append(line[find_indicies(categories, "Recruiting Profile Link")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "Grad Year") != -1:    
+        returnList.append(line[find_indicies(categories, "Grad Year")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "Position(s)") != -1:    
+        returnList.append(line[find_indicies(categories, "Position(s)")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "Height") != -1:    
+        returnList.append(line[find_indicies(categories, "Height")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "Weight") != -1:    
+        returnList.append(line[find_indicies(categories, "Weight")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "High School") != -1:    
+        returnList.append(line[find_indicies(categories, "High School")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "Club Team") != -1:    
+        returnList.append(line[find_indicies(categories, "Club Team")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "Phone") != -1 or find_indicies(categories, "Cell Phone") != -1:
+        if find_indicies(categories, "Phone") > find_indicies(categories, "Cell Phone"):
+            returnList.append(line[find_indicies(categories, "Phone")])
+        else:
+            returnList.append(line[find_indicies(categories, "Cell Phone")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "Email") != -1:    
+        returnList.append(line[find_indicies(categories, "Email")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "Address") != -1:    
+        returnList.append(line[find_indicies(categories, "Address")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "City") != -1:    
+        returnList.append(line[find_indicies(categories, "City")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "State") != -1:    
+        returnList.append(line[find_indicies(categories, "State")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "Zip") != -1:    
+        returnList.append(line[find_indicies(categories, "Zip")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "Rating") != -1:    
+        returnList.append(line[find_indicies(categories, "Rating")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "GPA") != -1:    
+        returnList.append(line[find_indicies(categories, "GPA")])
+    else:
+        returnList.append("")
+    if find_indicies(categories, "City") != -1:    
+        returnList.append(line[find_indicies(categories, "Class Rank")])
+    else:
+        returnList.append("")
+    return returnList
+'''
+finds the indicies that the category_type corresponds in the data sheet.
+If not found, return -1
+'''
+def find_indicies(categories, category_type):
+    for i in range(len(categories)):
+        if categories[i] == category_type:
+            return i
+    return -1
 
 '''
 Gathers front rush data and stores it in a dic. The key is the name of the recruit and the value 
@@ -85,6 +189,7 @@ Creates new recruits from NCSA data that are not in frontrush.
 Reads from "./final_data_sets/ncsa_combined_data.csv"
 '''
 def create_new_recruits(front_rush_data):
+    i = 0
     if os.path.exists("./final_data_sets/new_recruits.csv"):
         os.remove("./final_data_sets/new_recruits.csv")
     with open("./final_data_sets/new_recruits.csv", 'w', encoding = "UTF-8", newline = '') as wFile:
@@ -94,14 +199,17 @@ def create_new_recruits(front_rush_data):
                 'Recruiting Coach', 'Grad Year', 'Primary Position', 'Positions (All)', 'GPA', 'ACT', 'SAT'])
         f = open("./final_data_sets/ncsa_combined_data.csv", 'r', encoding = "UTF-8")
         with f as rFile:
+            
             spamreader = csv.reader(rFile, delimiter=',')
             next(spamreader)
             for line in spamreader:
-                if generate_name(line[0] + line[1] + abriviate_states(line[13])) not in front_rush_data:
+                if generate_name((line[0] + line[1] + abriviate_states(line[13]))) not in front_rush_data:
+                    i+= 1
                     write_line = [line[1], line[0], line[7], line[10],"" ,line[9], line[11], line[12], \
-                        abriviate_states(line[13]), line[14], "", "", "NCSA", find_coach(abriviate_states(line[13])), \
+                        abriviate_states(line[13]), line[14], "", "Yes", "NCSA", find_coach(abriviate_states(line[13])), \
                             line[3], abriviate_position(line[4]), "", line[16], "", ""]
                     writer.writerow(write_line)
+        print("Generated " + str(i) + " recruits.")
         f.close()
         wFile.close()
     
@@ -111,10 +219,10 @@ Finds the coach with the corresponding states
 def find_coach(state):
     #NEED TO UPDATE THIS
     state_responsibility = [
-        ["Lee", "OH", 'MO', 'KS', 'IL', 'MI', 'KY', 'WV', 'SD', 'ND', 'NE', 'AB'],
+        ["Lee", "OH", 'MO', 'KS', 'IL', 'MI', 'KY', 'WV', 'SD', 'ND', 'NE', 'AB', 'ON'],
         ["Journell", "AK", 'CA', 'CO', 'HI', 'ID', 'MT', 'OK', 'OR', 'UT', 'WA', 'WI', 'WY'],
         ["Kent", "AL", 'FL', 'GA', 'IN', 'LA', 'MS', 'SC', 'TN', 'TX'],
-        ["Davies", "PA", 'NC', 'MA', 'NJ', 'NY', 'DE', 'CT', 'NH', 'MD', 'ON', 'MI', 'DC', 'ME', 'RI', 'VT', 'VA'],
+        ["Davies", "PA", 'NC', 'MA', 'NJ', 'NY', 'DE', 'CT', 'NH', 'MD', 'DC', 'ME', 'RI', 'VT', 'VA'],
         ['Van Epps', 'MN'],
         ["Erickson", "AZ", 'NV', 'NM']
     ]
@@ -206,9 +314,9 @@ def abriviate_states(state):
     'north carolina': 'NC',
     'north dakota': 'ND',
     'nebraska': 'NE',
-    'new Hampshire': 'NH',
-    'new Jersey': 'NJ',
-    'new Mexico': 'NM',
+    'new hampshire': 'NH',
+    'new jersey': 'NJ',
+    'new mexico': 'NM',
     'nevada': 'NV',
     'new york': 'NY',
     'ohio': 'OH',
