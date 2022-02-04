@@ -219,8 +219,8 @@ Finds the coach with the corresponding states
 def find_coach(state):
     #NEED TO UPDATE THIS
     state_responsibility = [
-        ["Lee", "OH", 'MO', 'KS', 'IL', 'MI', 'KY', 'WV', 'SD', 'ND', 'NE', 'AB', 'ON'],
-        ["Journell", "AK", 'CA', 'CO', 'HI', 'ID', 'MT', 'OK', 'OR', 'UT', 'WA', 'WI', 'WY'],
+        ["Lee", "OH", 'MO', 'KS', 'IL', 'MI', 'KY', 'WV', 'SD', 'ND', 'NE', 'AB', 'ON','IA'],
+        ["Journell", "AK", 'CA', 'CO', 'HI', 'ID', 'MT', 'OK', 'OR', 'UT', 'WA', 'WI', 'WY','AR'],
         ["Kent", "AL", 'FL', 'GA', 'IN', 'LA', 'MS', 'SC', 'TN', 'TX'],
         ["Davies", "PA", 'NC', 'MA', 'NJ', 'NY', 'DE', 'CT', 'NH', 'MD', 'DC', 'ME', 'RI', 'VT', 'VA'],
         ['Van Epps', 'MN'],
@@ -334,11 +334,12 @@ def abriviate_states(state):
     'washington': 'WA',
     'wisconsin': 'WI',
     'west virginia': 'WV',
-    'wyoming': 'WY'
+    'wyoming': 'WY',
+    'international': 'international'
     }
     state = state.lower()
     if state not in states:
-        print("ERROR " + state + "not a valid state")
+        print("ERROR " + state + " not a valid state")
         exit(0)
     return states[state]
 
