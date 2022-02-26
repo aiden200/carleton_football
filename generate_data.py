@@ -6,19 +6,7 @@ import os
 Python script to create the files listed under the README.
 Please contact the author regarding questions or issues about the program.
 Wrote by Aiden Chang.
-Last Updated: 01/29/2022 by Aiden Chang
-
-TODOS:
-Ask Journell about the desired columns 
-Generate an export criteria
-Find the designated states per Coac
-
-states
-send to admissions yes, height weight
-
-fields not interested in 
-
-
+Last Updated: 02/26/2022 by Aiden Chang
 '''
 
 DEBUG = False
@@ -58,9 +46,9 @@ def merge_NCSA_Data():
 '''
 create the line with the correct categories in the correct spot
 '''
-['First Name', 'Last Name', 'Recruiting Profile Link', 'Grad Year', 'Position(s)', 'Height', \
-    'Weight', 'High School', 'Club Team', 'Phone', 'Email', 'Address', 'City', 'State', 'Zip', \
-        'Rating', 'GPA', 'Class Rank']
+# ['First Name', 'Last Name', 'Recruiting Profile Link', 'Grad Year', 'Position(s)', 'Height', \
+#     'Weight', 'High School', 'Club Team', 'Phone', 'Email', 'Address', 'City', 'State', 'Zip', \
+#         'Rating', 'GPA', 'Class Rank']
 def create_line(categories, line):
     returnList = []
     if find_indicies(categories, "First Name") != -1:    
@@ -155,22 +143,34 @@ is the list that contains all of the information of the recruit.
 The key is stored in the format: firstname + lastname + state(ALL LOWERCASE)
 
 IMPORTANT:
+The file storing the correct columns must be named after whatever the fileName string points to!
 state needs to be in the third column, as first name needs to be in the first and last name in the second
 '''
 def gather_front_rush_data():
-    path = './front_rush_recruits/*.csv'
+    # path = './front_rush_recruits/*.csv'
     recruit_data = {}
-    for fileName in glob.glob(path):
-        f = open(fileName, 'r', encoding = "UTF-8")
-        with f as rFile:
-            spamreader = csv.reader(rFile, delimiter=',')
-            next(spamreader)
-            for line in spamreader:
-                recruit_data[generate_name(line[0] + line[1] + line[2])] = line
-                #print(generate_name(line[0] + line[1] + line[2]))
+    detailed_data = {}
+    # for fileName in glob.glob(path): 13
+    fileName = './front_rush_recruits/Initial_recruits.csv'
+    f = open(fileName, 'r', encoding = "UTF-8")
+    with f as rFile:
+        spamreader = csv.reader(rFile, delimiter=',')
+        next(spamreader)
+        for line in spamreader:
+            recruit_data[generate_name(line[0] + line[1] + line[2])] = line
+            #print(generate_name(line[0] + line[1] + line[2]))
+    f.close()
+
+    fileName = './front_rush_recruits/Detailed_recruits.csv'
+    f = open(fileName, 'r', encoding = "UTF-8")
+    with f as rFile:
+        spamreader = csv.reader(rFile, delimiter=',')
+        next(spamreader)
+        for line in spamreader:
+            detailed_data[generate_name(line[0] + line[1] + line[13])] = line
     
     f.close()
-    return recruit_data
+    return recruit_data, detailed_data
 
 '''
 returns the general format of the name string that functions will use it as key to identify.
@@ -203,6 +203,7 @@ def create_new_recruits(front_rush_data):
             spamreader = csv.reader(rFile, delimiter=',')
             next(spamreader)
             for line in spamreader:
+                #firstname + lastname + state
                 if generate_name((line[0] + line[1] + abriviate_states(line[13]))) not in front_rush_data:
                     i+= 1
                     write_line = [line[1], line[0], line[7], line[10],"" ,line[9], line[11], line[12], \
@@ -340,8 +341,91 @@ def abriviate_states(state):
     state = state.lower()
     if state not in states:
         print("ERROR " + state + " not a valid state")
-        exit(0)
     return states[state]
+
+'''
+Creates a file that includes the recruits that are both in front rush and NCSA
+The recruits are only displayed if the front rush data doesnt have data from NCSA
+The file will contain only the fields missing from NCSA, frontrush will overwrite
+fields if same field exist in NCSA and frontrush
+Created filename is in the final dataset folder, called merged_recruits
+'''
+['First Name0', 'Last Name1', 'Recruiting Profile Link2', 'Grad Year3', 'Position(s)4', 'Height5', \
+    'Weight6', 'High School7', 'Club Team8', 'Phone9', 'Email10', 'Address11', 'City12', 'State13', 'Zip14', \
+        'Rating15', 'GPA16', 'Class Rank17']
+
+['Last Name', 'First', 'HS', 'Email', 'Twitter', 'Cell Phone', \
+            'Address', 'City', 'State', 'Zip', 'Video Link', 'Send to Admissions', 'Source', \
+                'Recruiting Coach', 'Grad Year', 'Primary Position', 'Positions (All)', 'GPA', 'ACT', 'SAT']
+def createMergeFile(front_rush_data, detailed_data):
+    i = 0
+    if os.path.exists("./final_data_sets/merge_recruits.csv"):
+        os.remove("./final_data_sets/merge_recruits.csv")
+    with open("./final_data_sets/merge_recruits.csv", 'w', encoding = "UTF-8", newline = '') as wFile:
+        writer = csv.writer(wFile)
+        writer.writerow(['Last Name', 'First', 'HS', 'Email', 'Twitter', 'Cell Phone', \
+            'Address', 'City', 'State', 'Zip', 'Video Link', 'Send to Admissions', 'Source', \
+                'Recruiting Coach', 'Grad Year', 'Primary Position', 'Positions (All)', 'GPA', 'ACT', 'SAT'])
+        fileName = './front_rush_recruits/Detailed_recruits.csv'
+        f = open(fileName, 'r', encoding = "UTF-8")
+        with f as rFile:
+            spamreader = csv.reader(rFile, delimiter=',')
+            next(spamreader)
+            for line in spamreader:
+
+                if generate_name((line[1] + line[0] + line[16])) in detailed_data:
+                    #Hopefully future students can update this part, hardcoded currently
+                    add = False
+                    
+                    currList = detailed_data[generate_name((line[1] + line[0] + line[16]))]
+                    if line[2] == "" and currList[7] != "":
+                        #high school
+                        line[2] = currList[7]
+                        add = True
+
+                    if line[22] == "" and currList[3] != "":
+                        #grad year
+                        line[22] = currList[3]
+                        add = True
+
+                    if line[23] == "" and currList[4] != "":
+                        #position
+                        line[23] = currList[4]
+                        add = True
+                    
+                    if line[23] == "" and currList[4] != "":
+                        #height
+                        line[23] = currList[4]
+                        add = True
+                    
+                    if line[23] == "" and currList[4] != "":
+                        #position
+                        line[23] = currList[4]
+                        add = True
+                    
+                    if line[23] == "" and currList[4] != "":
+                        #position
+                        line[23] = currList[4]
+                        add = True
+
+                    if line[23] == "" and currList[4] != "":
+                        #position
+                        line[23] = currList[4]
+                        add = True
+                    
+                    
+                    
+                    
+                    if add == True:
+                        writer.writerow(line)
+
+        print("Generated " + str(i) + " recruits.")
+        f.close()
+        wFile.close()
+
+
+
+
 
 def testFunction():
     path = "./formatting_examples/example_format.csv"
@@ -369,20 +453,25 @@ def main():
     if DEBUG:
         testFunction()
     else:
+        print("Program made by Aiden Chang(Carleton College 23')\n")
         print("Starting Program...\n")
         print('Merging NCSA datasheets...\n')
         merge_NCSA_Data()
         print("Done\n\nCreated merge file in ncsa_combined_data.csv in directory final_data_sets\n\nLoading front rush recruit data...\n")
-        front_rush_data = gather_front_rush_data()
+        front_rush_data, detailed_data = gather_front_rush_data()
         print("Done\n\nCross referencing... this might take some time\n")
         create_new_recruits(front_rush_data)
         print("Created new Recruit data in new_recruits.csv\n")
-        #create a dic that maps the columns from NCSA to front rush
-        #create a function that cross references the combined_ncsa_data and front rush dic to either add or write new lines into it
-            #We can seperate this into three fields, one for new recruits
-            #one with the old recruits but updated info
-            #one combined with both of them
-            #make sure to label the correct coaches and watch for null spaces. Add NCSA for source, good luck!
+        print("Merging Recruits\n")
+        createMergeFile(front_rush_data, detailed_data)
+        print("Recruits successfully merged, merge file: merge_recruits.csv\n")
+        print("Done!")
+        # create a dic that maps the columns from NCSA to front rush
+        # create a function that cross references the combined_ncsa_data and front rush dic to either add or write new lines into it
+        #     We can seperate this into three fields, one for new recruits
+        #     one with the old recruits but updated info
+        #     one combined with both of them
+        #     make sure to label the correct coaches and watch for null spaces. Add NCSA for source, good luck!
 
 
 main()
