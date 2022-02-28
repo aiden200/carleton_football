@@ -166,9 +166,12 @@ def gather_front_rush_data():
     with f as rFile:
         spamreader = csv.reader(rFile, delimiter=',')
         next(spamreader)
+        i = 0
         for line in spamreader:
-            detailed_data[generate_name(line[0] + line[1] + line[13])] = line
-    
+            #first name last name state
+            i += 1
+            detailed_data[generate_name(line[0] + line[1] + line[21])] = line
+        print("generated " + str(i) + " recruits in detailed dic\n")
     f.close()
     return recruit_data, detailed_data
 
@@ -350,76 +353,116 @@ The file will contain only the fields missing from NCSA, frontrush will overwrit
 fields if same field exist in NCSA and frontrush
 Created filename is in the final dataset folder, called merged_recruits
 '''
-['First Name0', 'Last Name1', 'Recruiting Profile Link2', 'Grad Year3', 'Position(s)4', 'Height5', \
-    'Weight6', 'High School7', 'Club Team8', 'Phone9', 'Email10', 'Address11', 'City12', 'State13', 'Zip14', \
-        'Rating15', 'GPA16', 'Class Rank17']
 
-['Last Name', 'First', 'HS', 'Email', 'Twitter', 'Cell Phone', \
-            'Address', 'City', 'State', 'Zip', 'Video Link', 'Send to Admissions', 'Source', \
-                'Recruiting Coach', 'Grad Year', 'Primary Position', 'Positions (All)', 'GPA', 'ACT', 'SAT']
+'''
+['Last Name0', 'First1', 'HS2', 'Email3', 'Twitter4', 'Cell Phone5', \
+            'Address6', 'City7', 'State8', 'Zip9', 'Video Link10', 'Send to Admissions11', 'Source12', \
+                'Recruiting Coach13', 'Grad Year14', 'Primary Position15', 'Positions (All)16', 'GPA17', 'ACT18', 'SAT19']
+
+
+#NCSA data columns
+['First Name0', 'Last Name1', 'Recruiting Profile Link2', 'Grad Year3', 'Position(s)4', 'Height5', 'Weight6', \
+    'High School7', 'Club Team8', 'Phone9', 'Email10', 'Address11', 'City12', 'State13', 'Zip14', 'Rating15', 'GPA16', 'Class Rank17']
+'''
+
 def createMergeFile(front_rush_data, detailed_data):
     i = 0
     if os.path.exists("./final_data_sets/merge_recruits.csv"):
         os.remove("./final_data_sets/merge_recruits.csv")
     with open("./final_data_sets/merge_recruits.csv", 'w', encoding = "UTF-8", newline = '') as wFile:
         writer = csv.writer(wFile)
-        writer.writerow(['Last Name', 'First', 'HS', 'Email', 'Twitter', 'Cell Phone', \
-            'Address', 'City', 'State', 'Zip', 'Video Link', 'Send to Admissions', 'Source', \
-                'Recruiting Coach', 'Grad Year', 'Primary Position', 'Positions (All)', 'GPA', 'ACT', 'SAT'])
-        fileName = './front_rush_recruits/Detailed_recruits.csv'
+        writer.writerow(['Legal First Name :: General', 'Last Name :: General', \
+            'Recruiting Website (ex: NCSA/BeRecruited/etc.) :: Athletic', 'Graduation Year :: General', \
+                'Primary College Position (please select one) :: Athletic', 'Height :: Athletic', 'Weight :: Athletic', \
+                    'High School :: Academic :: SchoolName', 'High School :: Academic :: Address1', \
+                        'High School :: Academic :: Address2', 'High School :: Academic :: Address3', \
+                            'High School :: Academic :: City', 'High School :: Academic :: State', \
+                                'High School :: Academic :: Zip', 'High School :: Academic :: Country', \
+                                    'High School :: Academic :: CEEBCode', 'Club Team :: 3rd Party Website', \
+                                        'Cell Phone Number :: General', 'Email Address :: General', 'Home Address1 :: General', \
+                                            'City :: General', 'State :: General', 'Zip :: General', 'Rating :: 3rd Party Website', \
+                                                'GPA :: 3rd Party Website', 'Class Rank :: Academic', 'ACT Composite :: Academic', \
+                                                    'SAT 2 Part Total :: Academic', ''])
+        fileName = './final_data_sets/ncsa_combined_data.csv'
         f = open(fileName, 'r', encoding = "UTF-8")
         with f as rFile:
             spamreader = csv.reader(rFile, delimiter=',')
             next(spamreader)
-            for line in spamreader:
-
-                if generate_name((line[1] + line[0] + line[16])) in detailed_data:
+            for currList in spamreader:
+                # print(generate_name((line[1] + line[0] + abriviate_states(line[13]))))
+                if generate_name((currList[0] + currList[1] + abriviate_states(currList[13]))) in detailed_data:
                     #Hopefully future students can update this part, hardcoded currently
+                    
                     add = False
                     
-                    currList = detailed_data[generate_name((line[1] + line[0] + line[16]))]
-                    if line[2] == "" and currList[7] != "":
-                        #high school
-                        line[2] = currList[7]
-                        add = True
+                    line = detailed_data[generate_name((currList[0] + currList[1] + abriviate_states(currList[13])))]
 
-                    if line[22] == "" and currList[3] != "":
-                        #grad year
-                        line[22] = currList[3]
-                        add = True
-
-                    if line[23] == "" and currList[4] != "":
+                    if line[4] == "" and currList[4] != "":
                         #position
-                        line[23] = currList[4]
+                        line[4] = currList[4]
                         add = True
-                    
-                    if line[23] == "" and currList[4] != "":
+
+                    if line[5] == "" and currList[5] != "":
                         #height
-                        line[23] = currList[4]
-                        add = True
-                    
-                    if line[23] == "" and currList[4] != "":
-                        #position
-                        line[23] = currList[4]
-                        add = True
-                    
-                    if line[23] == "" and currList[4] != "":
-                        #position
-                        line[23] = currList[4]
+                        line[6] = currList[6]
                         add = True
 
-                    if line[23] == "" and currList[4] != "":
-                        #position
-                        line[23] = currList[4]
+                    if line[6] == "" and currList[6] != "":
+                        #weight
+                        line[6] = currList[6]
+                        add = True
+                    
+                    if line[7] == "" and currList[7] != "":
+                        #highschool
+                        line[7] = currList[7]
                         add = True
                     
                     
+                    if line[17] == "" and currList[9] != "":
+                        #cellphone
+                        line[17] = currList[9]
+                        add = True
+
+                    if line[18] == "" and currList[10] != "":
+                        #email
+                        line[18] = currList[10]
+                        add = True
                     
+                    if line[19] == "" and currList[11] != "":
+                        #Address
+                        line[19] = currList[11]
+                        add = True
                     
+                    if line[20] == "" and currList[12] != "":
+                        #city
+                        line[20] = currList[12]
+                        add = True
+
+                    if line[21] == "" and currList[13] != "":
+                        #state
+                        line[21] = currList[13]
+                        add = True
+
+                    if line[22] == "" and currList[14] != "":
+                        #zip
+                        line[22] = currList[14]
+                        add = True
+
+                    if line[24] == "" and currList[16] != "":
+                        #gpa
+                        line[24] = currList[16]
+                        add = True
+
+                    
+
+
+
                     if add == True:
                         writer.writerow(line)
+                        i += 1
+                    
 
-        print("Generated " + str(i) + " recruits.")
+        print("Generated " + str(i) + " recruits to merge.")
         f.close()
         wFile.close()
 
