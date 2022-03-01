@@ -367,6 +367,7 @@ Created filename is in the final dataset folder, called merged_recruits
 
 def createMergeFile(front_rush_data, detailed_data):
     i = 0
+    j= 0
     if os.path.exists("./final_data_sets/merge_recruits.csv"):
         os.remove("./final_data_sets/merge_recruits.csv")
     with open("./final_data_sets/merge_recruits.csv", 'w', encoding = "UTF-8", newline = '') as wFile:
@@ -385,6 +386,7 @@ def createMergeFile(front_rush_data, detailed_data):
                                                     'SAT 2 Part Total :: Academic', ''])
         fileName = './final_data_sets/ncsa_combined_data.csv'
         f = open(fileName, 'r', encoding = "UTF-8")
+        check_dic = {'position':0,'height':0,'weight':0,'highschool':0,'cellphone':0,'email':0,'address':0,'city':0,'state':0,'zip':0,'gpa':0}
         with f as rFile:
             spamreader = csv.reader(rFile, delimiter=',')
             next(spamreader)
@@ -399,57 +401,71 @@ def createMergeFile(front_rush_data, detailed_data):
 
                     if line[4] == "" and currList[4] != "":
                         #position
+                        check_dic['position'] += 1
                         line[4] = currList[4]
                         add = True
 
                     if line[5] == "" and currList[5] != "":
                         #height
+                        check_dic['height'] += 1
                         line[6] = currList[6]
                         add = True
 
                     if line[6] == "" and currList[6] != "":
                         #weight
+                        check_dic['weight'] += 1
                         line[6] = currList[6]
                         add = True
                     
                     if line[7] == "" and currList[7] != "":
                         #highschool
+                        check_dic['highschool'] += 1
                         line[7] = currList[7]
                         add = True
                     
                     
                     if line[17] == "" and currList[9] != "":
                         #cellphone
+                        check_dic['cellphone'] += 1
                         line[17] = currList[9]
                         add = True
 
                     if line[18] == "" and currList[10] != "":
                         #email
+                        check_dic['email'] += 1
                         line[18] = currList[10]
                         add = True
                     
                     if line[19] == "" and currList[11] != "":
                         #Address
+                        check_dic['address'] += 1
                         line[19] = currList[11]
                         add = True
                     
                     if line[20] == "" and currList[12] != "":
                         #city
+                        check_dic['city'] += 1
                         line[20] = currList[12]
                         add = True
 
                     if line[21] == "" and currList[13] != "":
                         #state
-                        line[21] = currList[13]
+                        if abriviate_states(currList[13]) == 'MN':
+                            j+=1
+                            print(j)
+                        check_dic['state'] += 1
+                        line[21] = abriviate_states(currList[13])
                         add = True
 
                     if line[22] == "" and currList[14] != "":
                         #zip
+                        check_dic['zip'] += 1
                         line[22] = currList[14]
                         add = True
 
                     if line[24] == "" and currList[16] != "":
                         #gpa
+                        check_dic['gpa'] += 1
                         line[24] = currList[16]
                         add = True
 
@@ -460,9 +476,11 @@ def createMergeFile(front_rush_data, detailed_data):
                     if add == True:
                         writer.writerow(line)
                         i += 1
-                    
-
+                    #j+= 1
+        for key in check_dic:
+            print(key + " how many? " + str(check_dic[key]))
         print("Generated " + str(i) + " recruits to merge.")
+        print("out of " + str(j) + " recruits.")
         f.close()
         wFile.close()
 
